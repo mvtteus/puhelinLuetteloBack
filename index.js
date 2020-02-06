@@ -98,7 +98,7 @@ app.post('/api/persons', (request, response) => {
     number: body.number,
     id: Math.floor(Math.random() * 1000) + 1  
   }
-  persons.concat(person)
+  persons = persons.concat(person)
   response.json(person)
 })
 const PORT = process.env.PORT || 3001
