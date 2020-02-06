@@ -35,6 +35,7 @@ let info = {
     persons: persons.length,
     date: new Date()
 }
+app.use(express.static('build'))
 app.use(cors())
 app.use(express.json())
 morgan.token('setit', function (request, response) {
