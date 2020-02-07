@@ -70,10 +70,10 @@ app.get('/api/persons/:id', (request, response, next) => {
 })
 
 app.get('/api/info', (req, res) => {
-  console.log(Person.length)
-  const length = Person.length
+  console.log(Person.estimatedDocumentCount())
+  const lengthh = Number(Person.estimatedDocumentCount())
   res.send(
-      `<p>Phonebook has info for ${length} people</p>
+      `<p>Phonebook has info for ${lengthh} people</p>
       <p>${info.date}</p>`
   )
 })
