@@ -54,30 +54,28 @@ app.get('/', (req, res) => {
   res.sendDate()
 })
 
-app.get('/api/persons', (request, response) => {
+app.get('/api/persons', (request, response, next) => {
   Person.find({}).then(persons => {
     response.json(persons)
   })
+  .catch(error => next(error))
 })
 
-
-app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  console.log(id)
-  const person = persons.find(person => person.id === id)
-  
-  if (person) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(person => {
+      response.json(person.toJSON())
+    })
+    .catch(error => next(error))
 })
 
 app.get('/api/info', (req, res) => {
-    res.send(
-        `<p>Phonebook has info for ${info.persons} people</p>
-        <p>${info.date}</p>`
-    )
+  console.log(Person.length)
+  const length = Person.length
+  res.send(
+      `<p>Phonebook has info for ${length} people</p>
+      <p>${info.date}</p>`
+  )
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -85,10 +83,10 @@ app.delete('/api/persons/:id', (request, response) => {
   Person.findByIdAndRemove({_id: id}).then(persons => {
     response.json(persons)
   })
-    response.status(204).end()
+    response.status(204).end().catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   console.log(request.body)
   const body = request.body
   if (body.number === undefined || body.name === undefined) {
@@ -108,7 +106,22 @@ app.post('/api/persons', (request, response) => {
   })
   person.save().then(person => {
   response.json(person.toJSON())
+}).catch(error => next(error))
 })
+
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  }
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson.toJSON())
+    })
+    .catch(error => next(error))
 })
 
 const PORT = process.env.PORT
