@@ -27,17 +27,16 @@ const person = new Person({
 })
 
 if (newName === undefined || newNumber === undefined) {
-    console.log("Phonebook:")
-    Person.find({}).then(result => {
-        result.forEach(note => {
-          console.log(note.name, note.number)
-        })
-        mongoose.connection.close()
-      })
+  console.log('Phonebook:')
+  Person.find({}).then(result => {
+    result.forEach(note => {
+      console.log(note.name, note.number)
+    })
+    mongoose.connection.close()
+  })
 } else {
-    person.save().then(response => {
-        console.log('new person saved!');
-        mongoose.connection.close();
-      })
+  person.save().then(
+    mongoose.connection.close()
+  )
 }
 

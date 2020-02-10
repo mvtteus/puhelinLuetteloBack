@@ -5,60 +5,54 @@ const app = express()
 require('dotenv').config()
 const Person = require('./models/person')
 
-
 let persons = [
-    { 
-      name: "Arto Hellas", 
-      number: "040-123456",
-      id: 1
-    },
-    { 
-      name: "Ada Lovelace", 
-      number: "39-44-5323523",
-      id: 2
-    },
-    { 
-      name: "Dan Abramov", 
-      number: "12-43-234345",
-      id: 3
-    },
-    { 
-      name: "Mary Poppendieck", 
-      number: "39-23-6423122",
-      id: 4
-    },
-    {
-      name: "Iivari Laaksonen",
-      number: "112",
-      id: 5
-    }
-  ]
+  {
+    name: 'Arto Hellas',
+    number: '040-123456',
+    id: 1
+  },
+  {
+    name: 'Ada Lovelace',
+    number: '39-44-5323523',
+    id: 2
+  },
+  {
+    name: 'Dan Abramov',
+    number: '12-43-234345',
+    id: 3
+  },
+  {
+    name: 'Mary Poppendieck',
+    number: '39-23-6423122',
+    id: 4
+  },
+  {
+    name: 'Iivari Laaksonen',
+    number: '112',
+    id: 5
+  }
+]
 
 let info = {
-    persons: persons.length,
-    date: new Date()
+  persons: persons.length,
+  date: new Date()
 }
 app.use(express.static('build'))
 app.use(cors())
 app.use(express.json())
-morgan.token('setit', function (request, response) {
-  if (request.method === "POST") {
+morgan.token('setit', function (request) {
+  if (request.method === 'POST') {
     return JSON.stringify(request.body)
-  } 
+  }
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :setit'))
 
-        
-app.get('/', (req, res) => {
-  res.send('<h1>HUUTISTA</h1>')
-  res.sendDate()
-})
 
 app.get('/api/persons', (request, response, next) => {
   Person.find({}).then(persons => {
     response.json(persons)
   })
-  .catch(error => next(error))
+    .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -74,17 +68,17 @@ app.get('/api/info', (req, res) => {
   console.log(Person.length)
   const lengthh = Number(Person.estimatedDocumentCount())
   res.send(
-      `<p>Phonebook has info for ${lengthh} people</p>
+    `<p>Phonebook has info for ${lengthh} people</p>
       <p>${info.date}</p>`
   )
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
-  Person.findByIdAndRemove({_id: id}).then(persons => {
+  Person.findByIdAndRemove({ _id: id }).then(persons => {
     response.json(persons)
   })
-    response.status(204).end().catch(error => next(error))
+  response.status(204).end().catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response, next) => {
@@ -93,15 +87,15 @@ app.post('/api/persons', (request, response, next) => {
   const person = new Person({
     name: body.name,
     number: body.number,
-    id: Math.floor(Math.random() * 1000) + 1  
+    id: Math.floor(Math.random() * 1000) + 1
   })
   person.save().catch(error => next(error)).then(savedPerson => {
     return savedPerson.toJSON()
   })
-  .then(savedFormPerson => {
-    response.json(savedFormPerson)
-  }) 
-  .catch(error => next(error)) 
+    .then(savedFormPerson => {
+      response.json(savedFormPerson)
+    })
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -119,7 +113,7 @@ app.put('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-const unknownEndpoint = (request, response) => {
+const unknownEndpoint = (response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
 
@@ -128,7 +122,7 @@ app.use(unknownEndpoint)
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
-  if (error.name === 'CastError' && error.kind == 'ObjectId') {
+  if (error.name === 'CastError' && error.kind === 'ObjectId') {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message })
