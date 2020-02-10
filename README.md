@@ -1,4 +1,4 @@
 # puhelinLuetteloBack
 
-Nettisivuni osoite:
+Nettisivun osoite:
 https://mpuhelinluettelo.herokuapp.com/
