@@ -71,6 +71,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.get('/api/info', (req, res) => {
   console.log(Person.estimatedDocumentCount())
+  console.log(Person.length)
   const lengthh = Number(Person.estimatedDocumentCount())
   res.send(
       `<p>Phonebook has info for ${lengthh} people</p>
@@ -89,24 +90,18 @@ app.delete('/api/persons/:id', (request, response) => {
 app.post('/api/persons', (request, response, next) => {
   console.log(request.body)
   const body = request.body
-  if (body.number === undefined || body.name === undefined) {
-    return response.status(400).json({
-      error: 'Missing name or number'
-    })
-  } else if (persons.filter(p => p.name === body.name)[0] !== undefined) {
-    console.log(persons.filter(p => p.name === body.name)[0])
-    return response.status(400).json({
-      error: 'Name must be unique'
-    })
-  }
   const person = new Person({
     name: body.name,
     number: body.number,
     id: Math.floor(Math.random() * 1000) + 1  
   })
-  person.save().then(person => {
-  response.json(person.toJSON())
-}).catch(error => next(error))
+  person.save().catch(error => next(error)).then(savedPerson => {
+    return savedPerson.toJSON()
+  })
+  .then(savedFormPerson => {
+    response.json(savedFormPerson)
+  }) 
+  .catch(error => next(error)) 
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -135,7 +130,9 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError' && error.kind == 'ObjectId') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
 
   next(error)
 }
